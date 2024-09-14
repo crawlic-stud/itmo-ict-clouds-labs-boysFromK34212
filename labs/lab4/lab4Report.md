@@ -8,11 +8,11 @@
 
 ## Ход работы
 
-Для выполнения работы был выбран способ настройки CI/CD через Github Actions. Перед началом работы был написан небольшой API сервис, тесты для него, а также Dockerfile для запуска сервиса.
+Для выполнения работы был выбран способ настройки CI/CD через Github Actions. Перед началом работы был написан небольшой API сервис, тесты для него, а также Dockerfile для запуска сервиса:
 
 <details>
 
-<summary>Сервис на FastAPI:</summary>
+<summary>Сервис на FastAPI</summary>
 
 ```python
 from fastapi import FastAPI
@@ -27,7 +27,7 @@ async def root():
 
 <details>
 
-<summary>Тесты для сервиса:</summary>
+<summary>Тесты для сервиса</summary>
 
 ```python
 from fastapi.testclient import TestClient
@@ -47,7 +47,7 @@ def test_response_root(client: TestClient):
 </details>
 
 <details>
-<summary>Dockerfile:</summary>
+<summary>Dockerfile</summary>
 
 ```Dockerfile
 FROM python:3.11-slim
@@ -66,3 +66,12 @@ CMD uvicorn app:app
 </details>
 
 ### 1. Плохой CI/CD файл
+
+В качестве плохих практик для CI/CD пайплайна были выбраны следующие:
+
+1. Запуск всех билдов и тестов при пуше на любую ветку
+2. Запуск проекта без привязки к тестам, то есть возможный запуск при условии, что тесты будут провалены
+3. Хардкод секретных переменных прямо в файле конфигурации
+4. Логгирование переменных окружения в консоли
+5. Отсутствие разделения "сред", то есть отдельная настройка окружения под разные ветки и ивенты 
+
