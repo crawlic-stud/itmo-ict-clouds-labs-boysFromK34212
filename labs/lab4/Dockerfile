@@ -5,6 +5,6 @@ RUN pip install -r /tmp/requirements.txt
 
 WORKDIR /app
 
-COPY labs/lab4 .
+COPY labs/lab4/src .
 
 CMD uvicorn app:app
