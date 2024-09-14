@@ -44,4 +44,5 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
+          file: ./labs/lab4/Dockerfile
           tags: ${{ vars.DOCKER_USERNAME }}/cicd-app-for-lab4:latest
