@@ -75,3 +75,51 @@ CMD uvicorn app:app
 4. Логгирование переменных окружения в консоли
 5. Отсутствие разделения "сред", то есть отдельная настройка окружения под разные ветки и ивенты 
 
+Для реализации были выбраны Github Actions, а в качестве конечного пункта назначения для билда был выбран DockerHub, куда отправляется собранное изображение для последней версии проекта. "Плохой" файл был реализован в стандартном YML формате согласно документации github и docker и выглядел следующим образом:
+
+```yml
+name: Push to DockerHub
+on:
+ # its not good to run ci/cd on every push to every branch
+ push:
+  branches:
+      - '*'
+jobs:
+  run_tests:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install requirements
+        run: pip install -r ./labs/lab4/requirements.txt
+      - name: Run tests
+        run: pytest ./labs/lab4/src/tests.py
+
+  build:
+    # no dependency so it wont fail when tests fail
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          # hardcoded secrets
+          username: username
+          password: password
+      
+      # showing secrets in console
+      - name: Check password 
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ vars.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+          
+```
