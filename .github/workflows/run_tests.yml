@@ -17,6 +17,8 @@ jobs:
           architecture: 'x64'
       - name: Change directory 
         run: cd labs/lab4
+      - name: Check directory content
+        run: ls
       - name: Install requirements
         run: pip install -r ./requirements.txt
       - name: Run tests
