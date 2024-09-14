@@ -15,11 +15,7 @@ jobs:
         with:
           python-version: '3.11'
           architecture: 'x64'
-      - name: Change directory 
-        run: cd labs/lab4
-      - name: Check directory content
-        run: ls
       - name: Install requirements
-        run: pip install -r ./requirements.txt
+        run: pip install -r ./labs/lab4/requirements.txt
       - name: Run tests
-        run: pytest ./src/tests.py
+        run: pytest ./labs/lab4/src/tests.py
