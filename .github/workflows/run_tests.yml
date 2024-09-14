@@ -18,6 +18,6 @@ jobs:
       - name: Change directory 
         run: cd labs/lab4
       - name: Install requirements
-        run: pip install -r requirements.txt
+        run: pip install -r ./requirements.txt
       - name: Run tests
-        run: pytest src/tests.py
+        run: pytest ./src/tests.py
