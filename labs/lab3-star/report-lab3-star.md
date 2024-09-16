@@ -133,7 +133,8 @@ deployment.yaml (шаблон) использует значения из values
 Для того чтобы обновить код из основной 3-ей лабораторной работы было необходимо подвязать загрузку параметров из values.yaml
 
 <details>
-<summery>deployment.yaml (шаблон)</summery>
+
+<summary>deployment.yaml (шаблон)</summary>
 
 ```Dockerfile
 apiVersion: apps/v1
@@ -170,7 +171,8 @@ spec:
 </details>
 
 <details>
-<summery>deployment.yaml (шаблон)</summery>
+
+<summary>deployment.yaml (шаблон)</summary>
 
 ```Dockerfile
 apiVersion: v1
@@ -216,14 +218,45 @@ spec:
 
 ```
 
+Применим наш релиз helm ```helm install flask-app ./hello-world```
+
 <p align="center"><img src="https://github.com/user-attachments/assets/11176e1d-7cd8-499d-a9e5-3749b56d32a3" width=700></p>
 
-<p align="center"><img src="" width=700></p>
+Получаем данные IP-адрес узла и порта
+```bash
+export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services flask-app-service)
+export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+echo http://$NODE_IP:$NODE_PORT
+```
 
-<p align="center"><img src="" width=700></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/43bb6f5b-25be-493d-bcdc-781d501f31b3" width=700></p>
 
-<p align="center"><img src="" width=700></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/3cb5cac4-e082-4997-9da3-7709e13926ee" width=700></p>
 
-<p align="center"><img src="" width=700></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/214c051c-8dda-4afe-82fd-7eee45b7ef04" width=700></p>
 
-<p align="center"><img src="" width=700></p>
+Далее укажем replicaCount: 2 в файле values.yaml, изменив количество реплик приложения и обновим Helm-релиз. 
+
+```helm upgrade flask-app ./hello-world```
+
+<p align="center"><img src="https://github.com/user-attachments/assets/0e284c0c-75a7-4f58-b5db-048dbf6cacc6" width=700></p>
+
+Увеличение replicaCount до 2 или более позволяет создать несколько экземпляров Pod-ов. Если один Pod выходит из строя, остальные продолжают работать, обеспечивая доступность приложения.
+
+Они также позволят распределить входящий трафик или запросы между несколькими экземплярами приложения для более равномерного распределения нагрузки.
+
+Kubernetes может использовать стратегию Rolling Update для постепенного обновления Pod-ов. Если есть несколько реплик, Kubernetes обновляет их по одной или небольшими группами, что помогает минимизировать время простоя.
+
+<p align="center"><img src="https://github.com/user-attachments/assets/4ad0460b-647e-48ce-9ffd-0352bce336f6" width=700></p>
+
+## Три причины, почему использовать Helm удобнее, чем классический деплой через Kubernetes манифесты
+1. Helm позволяет легко обновлять приложения и их конфигурации, не редактируя вручную каждый YAML-файл
+2. Чарты в Helm позволяют создавать шаблоны, которые можно легко адаптировать для разных окружений (например, для тестирования и продакшна) с минимальными изменениями
+3. Все параметры приложения можно централизованно хранить в values.yaml, что упрощает настройку и масштабирование, а также минимизирует ошибки при редактировании нескольких манифестов
+
+## Вывод
+
+Helm позволяет легко управлять развертыванием приложений в Kubernetes, делая процесс автоматизированным и масштабируемым. За счет использования шаблонов и файла values.yaml можно управлять параметрами приложения.
+В данной работе мы создали Helm-чарт на основе лабораторной работы с Kubernetes, развернули его в кластере, провели обновление через helm upgrade, что продемонстрировало гибкость Helm в управлении версиями и конфигурациями приложений.
+
+
