@@ -172,7 +172,7 @@ spec:
 
 <details>
 
-<summary>deployment.yaml (шаблон)</summary>
+<summary>service.yaml (шаблон)</summary>
 
 ```Dockerfile
 apiVersion: v1
