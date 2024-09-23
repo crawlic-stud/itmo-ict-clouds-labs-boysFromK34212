@@ -24,4 +24,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: ./labs/lab4/Dockerfile
-          tags: ${{ vars.DOCKER_USERNAME }}/{{ inputs.image-name }}:latest
+          tags: ${{ vars.DOCKER_USERNAME }}/${{ inputs.image-name }}:latest
