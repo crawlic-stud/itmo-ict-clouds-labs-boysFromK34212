@@ -1,5 +1,9 @@
 name: Run app tests
 
+on:
+  workflow_run:
+
+
 jobs:
   tests:
     runs-on: [ubuntu-latest]
