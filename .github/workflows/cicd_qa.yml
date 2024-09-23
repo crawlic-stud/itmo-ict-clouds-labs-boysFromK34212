@@ -1,0 +1,15 @@
+name: Push to DockerHub
+on:
+  push:
+    branches:
+        - qa
+jobs:
+  run_tests:
+    uses: ./.github/workflows/tests-workflow.yml
+
+  build:
+    needs: run_tests 
+    uses: ./.github/workflows/deploy-workflow.yml
+    with:
+      image-name: itmo-ict-cloud-lab4-qa
+    secrets: inherit
