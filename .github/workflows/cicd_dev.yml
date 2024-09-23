@@ -1,0 +1,8 @@
+name: Push to DockerHub
+on:
+  push:
+    branches:
+        - dev
+jobs:
+  run_tests:
+    uses: ./.github/workflows/tests-workflow.yml
