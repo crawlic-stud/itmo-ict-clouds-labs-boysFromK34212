@@ -194,3 +194,123 @@ steps:
  - Отсутствие контроля за потреблением (например, ненастроенные лимиты на потребление CPU, RAM у контейнеров)
  - Отсутствие алертов и системы мониторинга (неактуально для Github Actions, так как автоматически прилетают уведомления на неудачный билд)
 
+### Исправление плохих практик
+
+Для исправления плохих практик был выбран модульный подход для построения CI/CD. Сначала были созданы два workflow файла, которые изолировали шаги теста и деплоя приложения:
+
+ - `deploy-workflow.yml` - файл для деплоя приложения на DockerHub, который принимает на вход название образа (нужно, чтобы разделять версии приложения на тест и прод)
+
+```yml
+name: Push to DockerHub
+
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }} 
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          file: ./labs/lab4/Dockerfile
+          tags: ${{ vars.DOCKER_USERNAME }}/${{ inputs.image-name }}:latest
+```
+
+ - `tests-workflow.yml` - файл для тестирования приложения, без каких-либо входных переменных, нужен, как зависимость для проверки работоспособности перед деплоем
+
+```yml
+name: Run app tests
+
+on:
+  workflow_call:
+
+
+jobs:
+  tests:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install requirements
+        run: pip install -r ./labs/lab4/requirements.txt
+      - name: Run tests
+        run: pytest ./labs/lab4/src/tests.py
+```
+
+Далее, шаги из этих файлов можно переиспользовать для уже самих Github Actions:
+
+ - `cicd_dev.yml` - файл CI/CD для ветки DEV - на данной ветке собираются все фичи, которые находятся в активном процессе разработки, поэтому для них необходимо прогонять тесты при каждом пуше нового кода
+
+```yml
+name: Push to DockerHub
+on:
+  push:
+    branches:
+        - dev
+jobs:
+  run_tests:
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
+```
+
+ - `cicd_qa.yml` - файл CI/CD для ветки QA - на данной ветке собираются тестовые версии приложения, которые собираются на тестовом сервере, и соответственно проверяются все новые фичи перед тем, как выпуститься в прод
+
+```yml
+name: Push to DockerHub
+on:
+  push:
+    branches:
+        - qa
+jobs:
+  run_tests:
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
+
+  build:
+    needs: run_tests 
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
+    with:
+      image-name: itmo-ict-cloud-lab4-qa
+    secrets: inherit
+```
+> [!NOTE]
+> В данном файле мы передаем названия изображения для докер образа, чтобы отличать версии приложения в DockerHub (в реальной жизни, скорее всего, это будет билд на тестовом сервере)
+
+ - `cicd_master.yml` - файл CI/CD для ветки MASTER - на данной ветке хранятся все стабильные версии приложения, поэтому сборка запускается только при релизе, а также собирается на прод сервере 
+
+```yml
+name: Push to DockerHub
+on:
+  release:
+    types: [published]
+    branches:
+        - main
+jobs:
+  run_tests:
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
+
+  build:
+    needs: run_tests 
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
+    with:
+      image-name: itmo-ict-cloud-lab4-master
+    secrets: inherit
+```
+
+> [!NOTE]
+> Данный файл отличается от предыдущего измененным названием триггером для запуска, а также image для DockerHub (опять же, в реальности это будет сборка на прод сервере) 
