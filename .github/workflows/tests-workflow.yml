@@ -1,12 +1,5 @@
 name: Run app tests
 
-on:
-  workflow_call:
-    inputs:
-      image-name:
-        required: true
-        type: string
-
 jobs:
   tests:
     runs-on: [ubuntu-latest]
