@@ -1,7 +1,7 @@
 name: Run app tests
 
 on:
-  workflow_run:
+  workflow_call:
 
 
 jobs:
