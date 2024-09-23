@@ -5,4 +5,4 @@ on:
         - dev
 jobs:
   run_tests:
-    uses: ./.github/workflows/tests-workflow.yml
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
