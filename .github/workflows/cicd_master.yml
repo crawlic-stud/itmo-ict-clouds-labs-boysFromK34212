@@ -11,10 +11,11 @@ jobs:
 
   import-secrets:
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/import-secrets-workflow.yml@main
-  
-  build:
-    needs: run_tests 
-    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
-    with:
-      image-name: itmo-ict-cloud-lab4-master
     secrets: inherit
+    
+  # build:
+  #   needs: run_tests 
+  #   uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
+  #   with:
+  #     image-name: itmo-ict-cloud-lab4-master
+  #   secrets: inherit
