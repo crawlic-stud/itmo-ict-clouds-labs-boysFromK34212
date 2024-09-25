@@ -1,7 +1,8 @@
 name: Push to DockerHub
 on:
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
+  push:
     branches:
         - main
 jobs:
