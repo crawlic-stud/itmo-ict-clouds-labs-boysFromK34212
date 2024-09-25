@@ -143,4 +143,78 @@ $ curl \
 
 ![image](https://github.com/user-attachments/assets/92127e6d-b12a-4800-9779-4d3058862d20)
 
-Затем
+Предположим, что секретов для доступа в DockerHub нет в списке секретов Github, а они есть только в Hashicorp Vault. Для того чтобы их получить - необходимо добавить два шага к процессу сборки проекта:
+
+1. Получение токена для доступа в Vault:
+
+```yml
+...
+steps:
+  - name: Get Hashicorp access token
+    id: hcp_token
+    run: |
+      echo token=$(curl --location "https://auth.idp.hashicorp.com/oauth2/token" \
+        --header "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "client_id=${{ secrets.HCP_CLIENT_ID }}" \
+        --data-urlencode "client_secret=${{ secrets.HCP_CLIENT_SECRET }}" \
+        --data-urlencode "grant_type=client_credentials" \
+        --data-urlencode "audience=https://api.hashicorp.cloud" | jq -r .access_token) >> $GITHUB_OUTPUT
+```
+
+> [!NOTE]
+> Для получения токена используется ранее описанный запрос cURL, который возвращает поле `access_token` из тела ответа от API и помещает его в `$GITHUB_OUTPUT` в переменную с названием `token`. Далее эту переменную можно использовать в следующем шаге, при этом не показывая ее значение в логах.
+
+2. Получение нужных переменных через API, используя полученный токен:
+
+```yml
+steps:
+...
+ - name: Use access token to get secrets
+   id: hcp_secrets
+   run: |
+     secrets=("DOCKERHUB_TOKEN" "DOCKER_USERNAME")
+     
+     for item in ${secrets[@]}; do
+       echo "Processing secret: $item"
+
+       echo $item=$(curl \
+         --location "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/${{ secrets.HCP_VAULT_PATH }}/open/${item}" \
+         --request GET \
+         --header "Authorization: Bearer ${{ steps.hcp_token.outputs.token }}" | jq -r .secret.version.value) >> $GITHUB_OUTPUT
+     done
+```
+
+> [!NOTE]
+> В данном шаге задается список нужных секретов для получения, а именно `DOCKERHUB_TOKEN` и `DOCKER_USERNAME`, которые нужны для авторизации в DockerHub. Далее, по каждому значению делается запрос и помещается в переменную с таким же названием, аналогично пункту 1.
+
+### Результаты
+
+После добавления этих шагов - необходимо изменить шаги по деплою в DockerHub, добавив туда полученные переменные:
+
+```yml
+- name: Login to Docker Hub
+  uses: docker/login-action@v3
+  with:
+    username: ${{ steps.hcp_secrets.outputs.DOCKER_USERNAME }} 
+    password: ${{ steps.hcp_secrets.outputs.DOCKERHUB_TOKEN }} 
+    
+- name: Set up Docker Buildx
+  uses: docker/setup-buildx-action@v3
+- name: Build and push
+  uses: docker/build-push-action@v6
+  with:
+    platforms: linux/amd64,linux/arm64
+    push: true
+    file: ./labs/lab4/Dockerfile
+    tags: ${{ steps.hcp_secrets.outputs.DOCKER_USERNAME }}/${{ inputs.image-name }}:latest
+```
+
+
+И в конечном итоге (спустя несколько десятков неудачных попыток), получается запустить билд точно так же, как при использовании Github Secrets, только в этот раз все секреты хранятся в облаке в Hashicorp Vault:
+
+![image](https://github.com/user-attachments/assets/e1c9d137-efaa-4046-972f-be5b8822f529)
+![image](https://github.com/user-attachments/assets/774a6ba8-2dd6-4275-b6a3-976ed2cbd5ec)
+
+## Выводы
+
+В результате работы получилось реализовать хранилище секретов через Hashicorp Vault, а также интегрировать его в пайплайн сборки на Github Actions. Данный способ хранения секретов является хорошей практикой, так как он не зависит от платформы, на которой реализовано CI/CD, что является огромным плюсом, так как при росте проекта скорее всего Github Actions будут обладать слишком ограниченным функционалом.
