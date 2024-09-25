@@ -14,3 +14,4 @@ jobs:
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
     with:
       image-name: itmo-ict-cloud-lab4-master
+    secrets: inherit
