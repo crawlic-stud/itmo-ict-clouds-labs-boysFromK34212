@@ -13,7 +13,7 @@ jobs:
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/import-secrets-workflow.yml@main
     secrets: inherit
     with:
-      secrets: DOCKERHUB_TOKEN
+      secrets: DOCKERHUB_TOKEN, DOCKER_USERNAME
         
     
   # build:
