@@ -20,7 +20,7 @@ jobs:
     needs: import-secrets
     steps:
       - name: test secrets
-        run: echo ${{ fromJson(needs.import-secrets.outputs.secrets).DOCKERHUB_TOKEN }}
+        run: echo ${{ needs.import-secrets.outputs.secrets }}
       
   build:
     needs: [run_tests, import-secrets]
