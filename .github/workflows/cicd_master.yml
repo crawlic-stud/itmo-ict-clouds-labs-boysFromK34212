@@ -15,7 +15,6 @@ jobs:
     with:
       secrets: DOCKERHUB_TOKEN, DOCKER_USERNAME
         
-    
   build:
     needs: [run_tests, import-secrets]
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
