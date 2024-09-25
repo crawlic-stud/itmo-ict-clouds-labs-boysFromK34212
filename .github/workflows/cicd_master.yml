@@ -17,6 +17,7 @@ jobs:
 
   test-secrets:
     runs-on: [ubuntu-latest]
+    needs: import-secrets
     steps:
       - name: test secrets
         run: echo ${{ needs.import-secrets.outputs.DOCKERHUB_TOKEN }}
