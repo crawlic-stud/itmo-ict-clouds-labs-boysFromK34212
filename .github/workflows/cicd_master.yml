@@ -8,25 +8,9 @@ on:
 jobs:
   run_tests:
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
-
-  import-secrets:
-    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/import-secrets-workflow.yml@main
-    secrets: inherit
-    with:
-      secrets: DOCKERHUB_TOKEN, DOCKER_USERNAME
-
-  test-secrets:
-    runs-on: [ubuntu-latest]
-    needs: import-secrets
-    steps:
-      - name: test secrets
-        run: echo ${{ needs.import-secrets.outputs.secrets }}
       
   build:
-    needs: [run_tests, import-secrets]
+    needs: run_tests
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
     with:
       image-name: itmo-ict-cloud-lab4-master
-    secrets: 
-      DOCKERHUB_TOKEN: ${{ needs.import-secrets.outputs.DOCKERHUB_TOKEN }}
-      DOCKER_USERNAME: ${{ needs.import-secrets.outputs.DOCKER_USERNAME }}
