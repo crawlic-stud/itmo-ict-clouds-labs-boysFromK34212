@@ -14,7 +14,13 @@ jobs:
     secrets: inherit
     with:
       secrets: DOCKERHUB_TOKEN, DOCKER_USERNAME
-        
+
+  test-secrets:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: test secrets
+        run: echo ${{ needs.import-secrets.outputs.DOCKERHUB_TOKEN }}
+      
   build:
     needs: [run_tests, import-secrets]
     uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
