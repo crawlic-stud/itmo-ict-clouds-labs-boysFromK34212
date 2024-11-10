@@ -1,0 +1,31 @@
+sinks_config:
+- slack_sink:
+    name: main_slack_sink
+    api_key: xoxe.xoxp-1-Mi0yLTc5MzQ3NzgzNzIxODItNzk0MTMxMjUyNjE0Ny03OTY0MjA0OTE4NjcyLTc5NTQwOTEzMDYyNzMtNmRiNmRkNjM1YzgyMjYyNjU4NjM5MjlkODNmOWUxMGUyNzgzMmQ2Y2U0YTM4MzM4MDVmOGM0YTUxNTc1ZGZmOQ  # to avoid putting your key in Helm values, see below
+    slack_channel: all-cloud-boys-from-k34212
+    max_log_file_limit_kb: 1000 
+    investigate_link: false 
+
+globalConfig:
+  signing_key: 74500ffc-3473-4fb6-9899-bbbed69ca411
+  account_id: b4e19398-41b8-401a-b2bb-df0a6ca5327c
+sinksConfig:
+  - robusta_sink:
+      name: robusta_ui_sink
+      token: eyJhY2NvdW50X2lkIjogImI0ZTE5Mzk4LTQxYjgtNDAxYS1iMmJiLWRmMGE2Y2E1MzI3YyIsICJhcGlfa2V5IjogImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUp5YjJ4bElqb2lZVzV2YmlJc0ltbGhkQ0k2TVRZeU5ERTNNalF5TkN3aVpYaHdJam94T1RNNU56UTROREkwZlEuaFJMdjZQQW54MWNhdkR3bC1pWXlnQXJINHFBMERWSFluckQ3MUFzcXFQdyIsICJzdG9yZV91cmwiOiAiaHR0cHM6Ly94dnlocG94Zm10cHVxcWV5cWtzby5zdXBhYmFzZS5jbyIsICJlbWFpbCI6ICJhcGl1c2VyLWRlZm9taW4tNDIwMDY0QHJvYnVzdGEuZGV2IiwgInBhc3N3b3JkIjogImYxNmU4Nzc4LTQzMjUtNDNjMS04ZjU1LTk5YzdmNjI5ZjM3ZSJ9
+enablePrometheusStack: true
+enablePlatformPlaybooks: true
+runner:
+  sendAdditionalTelemetry: true
+enableHolmesGPT: true
+holmes:
+  additionalEnvVars:
+    - name: ROBUSTA_AI
+      value: "true"
+prometheus:
+  enabled: true
+
+grafana:
+  enabled: true
+
+clusterName: minikube
