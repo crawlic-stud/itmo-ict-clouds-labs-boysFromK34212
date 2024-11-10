@@ -1,0 +1,16 @@
+name: Push to DockerHub
+on:
+  release:
+    types: [published]
+    branches:
+        - main
+jobs:
+  run_tests:
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
+
+  build:
+    needs: run_tests 
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/deploy-workflow.yml@main
+    with:
+      image-name: itmo-ict-cloud-lab4-master
+    secrets: inherit

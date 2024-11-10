@@ -1,0 +1,8 @@
+name: Push to DockerHub
+on:
+  push:
+    branches:
+        - dev
+jobs:
+  run_tests:
+    uses: crawlic-stud/itmo-ict-clouds-labs-boysFromK34212/.github/workflows/tests-workflow.yml@main
