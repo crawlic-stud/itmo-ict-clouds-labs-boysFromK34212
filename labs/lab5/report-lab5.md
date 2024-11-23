@@ -148,13 +148,13 @@ serverFiles:
 
 После того, как прокинули порты с подов, можем открыть http://127.0.0.1:9091/alerts и увидеть, что наши алерты применились и пока находятся в ожидании, так как nginx поднят и не использует cpu больше 90% (порт не 9090, у меня он занят)
 
-<p align="center"><img src="../ITMO/7-semestr/Cloud/itmo-ict-clouds-labs-boysFromK34212/labs/lab5/Work_Img/010000000.png" width=700></p>
+<p align="center"><img src="./Work_Img/010000000.png" width=700></p>
 
 Проверяем
 
-<p align="center"><img src="./Work_Img/093000000.png" width=400></p>
+<p align="center"><img src="./Work_Img/093000000.png" width=700></p>
 
-<p align="center"><img src="./Work_Img/654000000.png" width=400></p>
+<p align="center"><img src="./Work_Img/654000000.png" width=700></p>
 
 <p align="center"><img src="./Work_Img/691000000.png" width=700></p>
 
