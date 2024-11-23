@@ -24,7 +24,6 @@ helm install first-grafana grafana/grafana -f values/grafana-values.yaml --names
 
 <p align="center"><img src="./Work_Img/795000000.png" width=700></p>
 
-<p align="center"><img src="./Work_Img/829000000.png" width=700></p>
 
 <p align="center"><img src="./Work_Img/013000000.png" width=700></p>
 
@@ -63,17 +62,113 @@ helm install my-nginx bitnami/nginx \
 
 <p align="center"><img src="./Work_Img/652000000.png" width=700></p>
 
-<p align="center"><img src="./Work_Img/105000000.png" width=700></p>
+<p align="center"><img src="./Work_Img/105000000.png" width=300></p>
 
-## Задание со звездочкой (в работе)
+## Задание со звездочкой
 
-### Настройка Robusta
+### Создание бота и алерт конфига
 
+Создаем бота в telegram и получаем его токен
 
+<p align="center"><img src="./Work_Img/850000000.png" width=300></p>
 
+Конфигурация для настройки оповещений и мониторинга с Prometheus Alertmanager и Telegram для отправки уведомлений включает в себя настройки глобальных параметров, маршрутизации оповещений, получателей
+
+<details>
+
+<summary>Конфиг файл</summary>
+
+```yaml
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 1m
+      telegram_api_url: "https://api.telegram.org"
+
+    route:
+      group_by: ['alertname']alertmanager:
+      route:
+        receiver: telegram
+
+    receivers:
+      - name: telegram
+        telegram_configs:
+          - chat_id: тут id
+            bot_token: тут токен
+            api_url: "https://api.telegram.org"
+            send_resolved: true
+            parse_mode: Markdown
+            message: |-
+              {{ range .Alerts }}
+                🚨 *{{ .Annotations.summary }}*
+                {{ .Annotations.description }}
+
+                *Details:*
+                {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                {{ end }}
+              {{ end }}
+
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: nginx_alerts
+        rules:
+          - alert: NginxDown
+            expr: nginx_up == 0
+            labels:
+              severity: critical
+            annotations:
+              summary: "Nginx is down on {{ $labels.instance }}"
+              description: "No response from Nginx exporter for more than 1 minute."
+        
+        rules:
+          - alert: HighHttpRequests
+            expr: nginx_http_requests_total > 1000
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "HTTP requests exceed 1000 on Nginx instance {{ $labels.instance }}"
+              description: "The total number of HTTP requests on Nginx has exceeded 1000 for the last 5 minutes."
+```
+</details>
+
+Применение конфига
+```helm upgrade first-prometheus prometheus-community/prometheus -f alert.yaml -n monitoring```
+
+В**message** написан шаблон сообщения, которое будет отправлено. В данном случае сообщение формируется с использованием Go-шаблонов
+Каждое сообщение будет содержать символ 🚨 и выделенное жирным шрифтом краткое описание алерта.
+А также полное описание алерта и подробности по меткам алерта, выводящиеся как пары "имя-значение", отформатированные с помощью Markdown.
+
+**NginxDown** — алерт, который срабатывает, когда метрика nginx_up равна 0, то есть Nginx не отвечает.
+
+**HighHttpRequests** — алерт, который срабатывает, если слишком много обращений.
+
+<p align="center"><img src="./Work_Img/238000000.png" width=700></p>
+
+После того, как прокинули порты с подов, можем открыть http://127.0.0.1:9091/alerts и увидеть, что наши алерты применились и пока находятся в ожидании, так как nginx поднят и не использует cpu больше 90% (порт не 9090, у меня он занят)
+
+<p align="center"><img src="../ITMO/7-semestr/Cloud/itmo-ict-clouds-labs-boysFromK34212/labs/lab5/Work_Img/010000000.png" width=700></p>
+
+Проверяем
+
+<p align="center"><img src="./Work_Img/093000000.png" width=400></p>
+
+<p align="center"><img src="./Work_Img/654000000.png" width=400></p>
+
+<p align="center"><img src="./Work_Img/691000000.png" width=700></p>
+
+## Вывод 
+
+Сделал мониторинг сервис, поднятый в кубере, настроил уведомления prometheus alert, познакомился с robusta 
+
+<details>
+<summary>не оформлено, пытался связать Slack и robusta, но видимо где то запутался, потом вернусь, не хочется удалять</summary>
+
+------------------
 Создаем канал Slack, аккаунт и токен
 
-<p align="center"><img src="./Work_Img/182000000.png" width=700></p>
+<p align="center"><img src="./Work_Img/182000000.png" width=400></p>
 
 И устанавливаем Robusta
 
@@ -121,7 +216,4 @@ grafana:
 
 <p align="center"><img src="./Work_Img/972000000.png" width=700></p>
 
-
-## Вывод 
-
-Сделал мониторинг сервис, поднятый в кубере, познакомился с robusta (alert еще делаю)
+</details>
